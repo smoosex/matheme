@@ -1,0 +1,18 @@
+[wallpaper] # if auto is true, wallpaper will be changed automatically when switching themes
+auto = true
+
+[wallpaper.wallpapers] # theme name -> wallpaper name
+default = "stairs.jpg" # if theme is not specified, default wallpaper will be used
+
+ayu_light = "beach.jpg"
+one_light = "beach.jpg"
+tundra = "mount.jpg"
+bearded-arc = "mountain.png"
+everforest = "stairs.jpg"
+gruvbox = "railtrack.jpg"
+gruvchad = "railtrack.jpg"
+
+# I use chezmoi to manage my dotfiles, if you don't use it, you should substitute the dst paths below with your own
+[theme.path]
+alacritty = "/Users/smoose/.local/share/chezmoi/dot_config/alacritty/theme.toml"
+sketchybar = "/Users/smoose/.local/share/chezmoi/dot_config/sketchybar/helpers/theme/palette.lua"
