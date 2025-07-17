@@ -1,6 +1,7 @@
 #!/bin/sh
 
-# I use chezmoi to manage my dotfiles, if you don't use it, you should substitute the dst paths below with your own and remove all cmd about chezmoi.
+# !!!Important!!!
+# I use chezmoi to manage my dotfiles, if you don't use it, you should substitute the paths below with your own and remove all cmd about chezmoi.
 # for expamle:
 # mkdir -p $HOME/.config/matheme
 # cp -rf ./scripts $HOME/.config/matheme

@@ -27,52 +27,54 @@ var switchCmd = &cobra.Command{
 		}
 
 		homeDir := os.Getenv("HOME")
-		nvimConfigDir := filepath.Join(homeDir, ".config", "nvim", "init.lua")
 		scriptsDir := filepath.Join(homeDir, ".config", "matheme", "scripts")
-
-		switchNvimDirScript := filepath.Join(scriptsDir, "switch_nvim_theme.lua")
-		genAlacrittyThemeScript := filepath.Join(scriptsDir, "gen_alacritty_theme.lua")
-		genSketchybarThemeScript := filepath.Join(scriptsDir, "gen_sketchybar_theme.lua")
-		switchWallpaperScript := filepath.Join(scriptsDir, "switch_wallpaper.lua")
-
 		tmpDir := "/tmp/matheme"
 
 		// Neovim
-		if err := exec.Command("nvim", "-u", nvimConfigDir, "-l", switchNvimDirScript, "--theme", curTheme).Run(); err != nil {
-			panic(fmt.Errorf("failed to run switch nvim: %w", err))
+		if viper.GetBool("nvim.enable") {
+			nvimConfigDir := viper.GetString("nvim.init_path")
+			switchNvimDirScript := filepath.Join(scriptsDir, "switch_nvim_theme.lua")
+			if err := exec.Command("nvim", "-u", nvimConfigDir, "-l", switchNvimDirScript, "--theme", curTheme).Run(); err != nil {
+				panic(fmt.Errorf("failed to run switch nvim: %w", err))
+			}
 		}
 
 		// Alacritty
-		if err := exec.Command(
-			"lua", genAlacrittyThemeScript, curTheme).
-			Run(); err != nil {
-			panic(fmt.Errorf("failed to run gen alacritty theme: %w", err))
-		}
+		if viper.GetBool("alacritty.enable") {
+			genAlacrittyThemeScript := filepath.Join(scriptsDir, "gen_alacritty_theme.lua")
+			if err := exec.Command(
+				"lua", genAlacrittyThemeScript, curTheme).
+				Run(); err != nil {
+				panic(fmt.Errorf("failed to run gen alacritty theme: %w", err))
+			}
 
-		dst := viper.GetString("theme.path.alacritty")
-		if err := os.Rename(tmpDir+"/theme.toml", dst); err != nil {
-			panic(fmt.Errorf("failed to rename theme.toml to %s: %w", dst, err))
-		}
-		exec.Command("chezmoi", "apply", "--force").Run()
-		now := time.Now()
-		if err := os.Chtimes(filepath.Join(os.Getenv("HOME"), ".config/alacritty/alacritty.toml"), now, now); err != nil {
-			panic(fmt.Errorf("failed to update config file timestamp: %w", err))
+			dst := viper.GetString("alacritty.theme_path")
+			if err := os.Rename(tmpDir+"/theme.toml", dst); err != nil {
+				panic(fmt.Errorf("failed to rename theme.toml to %s: %w", dst, err))
+			}
+			now := time.Now()
+			if err := os.Chtimes(viper.GetString("alacritty.config_path"), now, now); err != nil {
+				panic(fmt.Errorf("failed to update config file timestamp: %w", err))
+			}
 		}
 
 		// Sketchybar
-		if err := exec.Command(
-			"lua", genSketchybarThemeScript, curTheme).
-			Run(); err != nil {
-			panic(fmt.Errorf("failed to run gen sketchybar theme: %w", err))
+		if viper.GetBool("sketchybar.enable") {
+			genSketchybarThemeScript := filepath.Join(scriptsDir, "gen_sketchybar_theme.lua")
+			if err := exec.Command(
+				"lua", genSketchybarThemeScript, curTheme).
+				Run(); err != nil {
+				panic(fmt.Errorf("failed to run gen sketchybar theme: %w", err))
+			}
+			dst := viper.GetString("sketchybar.theme_path")
+			if err := os.Rename(tmpDir+"/init.lua", dst); err != nil {
+				panic(fmt.Errorf("failed to rename init.lua to %s: %w", dst, err))
+			}
 		}
-		dst = viper.GetString("theme.path.sketchybar")
-		if err := os.Rename(tmpDir+"/init.lua", dst); err != nil {
-			panic(fmt.Errorf("failed to rename init.lua to %s: %w", dst, err))
-		}
-		exec.Command("chezmoi", "apply", "--force").Run()
 
 		// Switch wallpaper
 		if viper.GetBool("wallpaper.auto") {
+			switchWallpaperScript := filepath.Join(scriptsDir, "switch_wallpaper.lua")
 			curWallpaper := viper.GetString("wallpaper.wallpapers." + curTheme)
 			if curWallpaper == "" {
 				curWallpaper = viper.GetString("wallpaper.wallpapers.default")
@@ -85,6 +87,12 @@ var switchCmd = &cobra.Command{
 			}
 
 		}
+
+		// Chezmoi
+		if viper.GetBool("chezmoi.enable") {
+			exec.Command("chezmoi", "apply", "--force").Run()
+		}
+
 	},
 }
 

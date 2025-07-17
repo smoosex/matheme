@@ -2,7 +2,7 @@
 https://github.com/user-attachments/assets/991915d9-714f-4dae-9207-a143f37167ad
 
 ## Supported Tools
-- [x] Neovim(Nvchad)
+- [x] Neovim(Only Support Nvchad)
 - [x] SketchyBar
 - [x] Alacritty
 - [ ] Ghostty
