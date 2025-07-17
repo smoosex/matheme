@@ -30,6 +30,12 @@ var switchCmd = &cobra.Command{
 		scriptsDir := filepath.Join(homeDir, ".config", "matheme", "scripts")
 		tmpDir := "/tmp/matheme"
 
+		chezmoi := func() {
+			if viper.GetBool("chezmoi.enable") {
+				exec.Command("chezmoi", "apply", "--force").Run()
+			}
+		}
+
 		// Neovim
 		if viper.GetBool("nvim.enable") {
 			nvimConfigDir := viper.GetString("nvim.init_path")
@@ -49,9 +55,12 @@ var switchCmd = &cobra.Command{
 			}
 
 			dst := viper.GetString("alacritty.theme_path")
-			if err := os.Rename(tmpDir+"/theme.toml", dst); err != nil {
+			if err := os.Rename(tmpDir+"/alacritty_theme.toml", dst); err != nil {
 				panic(fmt.Errorf("failed to rename theme.toml to %s: %w", dst, err))
 			}
+
+			chezmoi()
+
 			now := time.Now()
 			if err := os.Chtimes(viper.GetString("alacritty.config_path"), now, now); err != nil {
 				panic(fmt.Errorf("failed to update config file timestamp: %w", err))
@@ -67,9 +76,10 @@ var switchCmd = &cobra.Command{
 				panic(fmt.Errorf("failed to run gen sketchybar theme: %w", err))
 			}
 			dst := viper.GetString("sketchybar.theme_path")
-			if err := os.Rename(tmpDir+"/init.lua", dst); err != nil {
+			if err := os.Rename(tmpDir+"/sketchybar_theme.lua", dst); err != nil {
 				panic(fmt.Errorf("failed to rename init.lua to %s: %w", dst, err))
 			}
+			chezmoi()
 		}
 
 		// Switch wallpaper
@@ -88,11 +98,23 @@ var switchCmd = &cobra.Command{
 
 		}
 
-		// Chezmoi
-		if viper.GetBool("chezmoi.enable") {
-			exec.Command("chezmoi", "apply", "--force").Run()
-		}
+		// Ghostty
+		if viper.GetBool("ghostty.enable") {
+			genGhosttyThemeScript := filepath.Join(scriptsDir, "gen_ghostty_theme.lua")
+			if err := exec.Command(
+				"lua", genGhosttyThemeScript, curTheme).
+				Run(); err != nil {
+				panic(fmt.Errorf("failed to run gen ghostty theme: %w", err))
+			}
 
+			dst := viper.GetString("ghostty.theme_path")
+			if err := os.Rename(tmpDir+"/ghostty_theme", dst); err != nil {
+				panic(fmt.Errorf("failed to rename ghostty_theme to %s: %w", dst, err))
+			}
+
+			chezmoi()
+			exec.Command("pkill", "-SIGUSR2", "ghostty").Run()
+		}
 	},
 }
 

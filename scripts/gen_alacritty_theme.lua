@@ -105,7 +105,7 @@ end
 
 -- Write all lines to theme.toml
 os.execute("mkdir -p /tmp/matheme")
-local fp, err = io.open("/tmp/matheme/theme.toml", "w")
+local fp, err = io.open("/tmp/matheme/alacritty_theme.toml", "w")
 if not fp then
 	error("Cannot open file for writing: " .. err)
 end
