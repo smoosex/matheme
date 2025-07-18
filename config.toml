@@ -36,3 +36,7 @@ init_path = "/Users/smoose/.config/nvim/init.lua"
 [ghostty]
 enable = true
 theme_path = "/Users/smoose/.local/share/chezmoi/dot_config/ghostty/themes/matheme"
+
+[kitty]
+enable = true
+theme_path = "/Users/smoose/.local/share/chezmoi/dot_config/kitty/themes/matheme.conf"

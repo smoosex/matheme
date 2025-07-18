@@ -115,6 +115,24 @@ var switchCmd = &cobra.Command{
 			chezmoi()
 			exec.Command("pkill", "-SIGUSR2", "ghostty").Run()
 		}
+
+		// Kitty
+		if viper.GetBool("kitty.enable") {
+			genKittyThemeScript := filepath.Join(scriptsDir, "gen_kitty_theme.lua")
+			if err := exec.Command(
+				"lua", genKittyThemeScript, curTheme).
+				Run(); err != nil {
+				panic(fmt.Errorf("failed to run gen kitty theme: %w", err))
+			}
+
+			dst := viper.GetString("kitty.theme_path")
+			if err := os.Rename(tmpDir+"/kitty_theme", dst); err != nil {
+				panic(fmt.Errorf("failed to rename kitty_theme to %s: %w", dst, err))
+			}
+
+			chezmoi()
+			exec.Command("pkill", "-SIGUSR1", "kitty").Run()
+		}
 	},
 }
 

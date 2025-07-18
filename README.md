@@ -6,7 +6,7 @@ https://github.com/user-attachments/assets/991915d9-714f-4dae-9207-a143f37167ad
 - [x] SketchyBar
 - [x] Alacritty
 - [x] Ghostty(Not Support 1.13)
-- [ ] Kitty
+- [x] Kitty
 
 > This is a highly customized CLI tool for switching themes on macOS—supporting SketchyBar, Neovim, and more. Inspired by [siduck](https://github.com/siduck). it leverages themes from [base46](https://github.com/NvChad/base46) and wallpapers sourced from the NvChad Discord.
 
