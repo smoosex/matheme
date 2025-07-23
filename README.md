@@ -1,3 +1,5 @@
+> Only worked on macOS
+
 ## Showcase
 https://github.com/user-attachments/assets/991915d9-714f-4dae-9207-a143f37167ad
 

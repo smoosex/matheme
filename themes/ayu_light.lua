@@ -19,4 +19,6 @@ M.base_16 = {
   base0F = "#F2AE49",
 }
 
+M.type = "light"
+
 return M

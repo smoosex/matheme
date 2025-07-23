@@ -6,6 +6,5 @@ local raw_osascript = string.format([[
 osascript -e "tell application \"Finder\" to set desktop picture to POSIX file \"%s\""
 ]], wallpaper_file)
 
-print(raw_osascript)
 os.execute(raw_osascript)
 

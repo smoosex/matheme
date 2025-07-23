@@ -7,11 +7,12 @@ else
 	return
 end
 
-print(theme_name)
+print("Switching to theme: " .. theme_name)
 
-require("nvconfig").base46.theme = theme_name
+local new_theme = '"' .. theme_name .. '"'
+local old_theme = '"' .. require("chadrc").base46.theme .. '"'
+require("nvchad.utils").replace_word(old_theme, new_theme)
 
--- reload_all.lua
 local fn = vim.fn
 local uv = vim.loop
 
@@ -51,6 +52,6 @@ for _, sock in ipairs(socks) do
 	else
 		print("Skipping dead socket: " .. sock)
 		-- You can also delete the old socket file if necessary：
-		-- uv.fs_unlink(sock)
+		uv.fs_unlink(sock)
 	end
 end

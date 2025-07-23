@@ -30,7 +30,7 @@ var switchCmd = &cobra.Command{
 		scriptsDir := filepath.Join(homeDir, ".config", "matheme", "scripts")
 		tmpDir := "/tmp/matheme"
 
-		chezmoi := func() {
+		chezmoiApply := func() {
 			if viper.GetBool("chezmoi.enable") {
 				exec.Command("chezmoi", "apply", "--force").Run()
 			}
@@ -42,6 +42,10 @@ var switchCmd = &cobra.Command{
 			switchNvimDirScript := filepath.Join(scriptsDir, "switch_nvim_theme.lua")
 			if err := exec.Command("nvim", "-u", nvimConfigDir, "-l", switchNvimDirScript, "--theme", curTheme).Run(); err != nil {
 				panic(fmt.Errorf("failed to run switch nvim: %w", err))
+			}
+			if viper.GetBool("chezmoi.enable") {
+				chadrcPath := viper.GetString("nvim.chadrc_path")
+				exec.Command("chezmoi", "add", chadrcPath).Run()
 			}
 		}
 
@@ -59,7 +63,7 @@ var switchCmd = &cobra.Command{
 				panic(fmt.Errorf("failed to rename theme.toml to %s: %w", dst, err))
 			}
 
-			chezmoi()
+			chezmoiApply()
 
 			now := time.Now()
 			if err := os.Chtimes(viper.GetString("alacritty.config_path"), now, now); err != nil {
@@ -79,7 +83,7 @@ var switchCmd = &cobra.Command{
 			if err := os.Rename(tmpDir+"/sketchybar_theme.lua", dst); err != nil {
 				panic(fmt.Errorf("failed to rename init.lua to %s: %w", dst, err))
 			}
-			chezmoi()
+			chezmoiApply()
 		}
 
 		// Switch wallpaper
@@ -112,7 +116,7 @@ var switchCmd = &cobra.Command{
 				panic(fmt.Errorf("failed to rename ghostty_theme to %s: %w", dst, err))
 			}
 
-			chezmoi()
+			chezmoiApply()
 			exec.Command("pkill", "-SIGUSR2", "ghostty").Run()
 		}
 
@@ -130,9 +134,18 @@ var switchCmd = &cobra.Command{
 				panic(fmt.Errorf("failed to rename kitty_theme to %s: %w", dst, err))
 			}
 
-			chezmoi()
+			chezmoiApply()
 			exec.Command("pkill", "-SIGUSR1", "kitty").Run()
 		}
+
+		// MacOS System Appearance Mode
+		if viper.GetBool("macos_system_appearance.enable") {
+			switchMacOSSystemAppearanceScript := filepath.Join(scriptsDir, "switch_system_appearance.lua")
+			if err := exec.Command("lua", switchMacOSSystemAppearanceScript, curTheme).Run(); err != nil {
+				panic(fmt.Errorf("failed to run switch macos system appearance: %w", err))
+			}
+		}
+
 	},
 }
 
