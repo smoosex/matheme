@@ -23,7 +23,8 @@ var switchCmd = &cobra.Command{
 		// Check if theme exists
 		themes := common.ListThemes()
 		if !pkg.Contains(themes, curTheme) {
-			panic(fmt.Errorf("theme %s not found", curTheme))
+			fmt.Fprintf(os.Stderr, "theme %s not found\n", curTheme)
+			os.Exit(1)
 		}
 
 		homeDir := os.Getenv("HOME")
@@ -41,7 +42,8 @@ var switchCmd = &cobra.Command{
 			nvimConfigDir := viper.GetString("nvim.init_path")
 			switchNvimDirScript := filepath.Join(scriptsDir, "switch_nvim_theme.lua")
 			if err := exec.Command("nvim", "-u", nvimConfigDir, "-l", switchNvimDirScript, "--theme", curTheme).Run(); err != nil {
-				panic(fmt.Errorf("failed to run switch nvim: %w", err))
+				fmt.Fprintf(os.Stderr, "failed to run switch nvim: %v\n", err)
+				os.Exit(1)
 			}
 			if viper.GetBool("chezmoi.enable") {
 				chadrcPath := viper.GetString("nvim.chadrc_path")
@@ -55,19 +57,22 @@ var switchCmd = &cobra.Command{
 			if err := exec.Command(
 				"lua", genAlacrittyThemeScript, curTheme).
 				Run(); err != nil {
-				panic(fmt.Errorf("failed to run gen alacritty theme: %w", err))
+				fmt.Fprintf(os.Stderr, "failed to run gen alacritty theme: %v\n", err)
+				os.Exit(1)
 			}
 
 			dst := viper.GetString("alacritty.theme_path")
 			if err := os.Rename(tmpDir+"/alacritty_theme.toml", dst); err != nil {
-				panic(fmt.Errorf("failed to rename theme.toml to %s: %w", dst, err))
+				fmt.Fprintf(os.Stderr, "failed to rename theme.toml to %s: %v\n", dst, err)
+				os.Exit(1)
 			}
 
 			chezmoiApply()
 
 			now := time.Now()
 			if err := os.Chtimes(viper.GetString("alacritty.config_path"), now, now); err != nil {
-				panic(fmt.Errorf("failed to update config file timestamp: %w", err))
+				fmt.Fprintf(os.Stderr, "failed to update config file timestamp: %v\n", err)
+				os.Exit(1)
 			}
 		}
 
@@ -77,11 +82,13 @@ var switchCmd = &cobra.Command{
 			if err := exec.Command(
 				"lua", genSketchybarThemeScript, curTheme).
 				Run(); err != nil {
-				panic(fmt.Errorf("failed to run gen sketchybar theme: %w", err))
+				fmt.Fprintf(os.Stderr, "failed to run gen sketchybar theme: %v\n", err)
+				os.Exit(1)
 			}
 			dst := viper.GetString("sketchybar.theme_path")
 			if err := os.Rename(tmpDir+"/sketchybar_theme.lua", dst); err != nil {
-				panic(fmt.Errorf("failed to rename init.lua to %s: %w", dst, err))
+				fmt.Fprintf(os.Stderr, "failed to rename init.lua to %s: %v\n", dst, err)
+				os.Exit(1)
 			}
 			chezmoiApply()
 		}
@@ -94,10 +101,12 @@ var switchCmd = &cobra.Command{
 				curWallpaper = viper.GetString("wallpaper.wallpapers.default")
 			}
 			if curWallpaper == "" {
-				panic(fmt.Errorf("wallpaper for theme %s not found", curTheme))
+				fmt.Fprintf(os.Stderr, "wallpaper for theme %s not found\n", curTheme)
+				os.Exit(1)
 			}
 			if err := exec.Command("lua", switchWallpaperScript, curWallpaper).Run(); err != nil {
-				panic(fmt.Errorf("failed to run switch wallpaper: %w", err))
+				fmt.Fprintf(os.Stderr, "failed to run switch wallpaper: %v\n", err)
+				os.Exit(1)
 			}
 
 		}
@@ -108,12 +117,14 @@ var switchCmd = &cobra.Command{
 			if err := exec.Command(
 				"lua", genGhosttyThemeScript, curTheme).
 				Run(); err != nil {
-				panic(fmt.Errorf("failed to run gen ghostty theme: %w", err))
+				fmt.Fprintf(os.Stderr, "failed to run gen ghostty theme: %v\n", err)
+				os.Exit(1)
 			}
 
 			dst := viper.GetString("ghostty.theme_path")
 			if err := os.Rename(tmpDir+"/ghostty_theme", dst); err != nil {
-				panic(fmt.Errorf("failed to rename ghostty_theme to %s: %w", dst, err))
+				fmt.Fprintf(os.Stderr, "failed to rename ghostty_theme to %s: %v\n", dst, err)
+				os.Exit(1)
 			}
 
 			chezmoiApply()
@@ -126,12 +137,14 @@ var switchCmd = &cobra.Command{
 			if err := exec.Command(
 				"lua", genKittyThemeScript, curTheme).
 				Run(); err != nil {
-				panic(fmt.Errorf("failed to run gen kitty theme: %w", err))
+				fmt.Fprintf(os.Stderr, "failed to run gen kitty theme: %v\n", err)
+				os.Exit(1)
 			}
 
 			dst := viper.GetString("kitty.theme_path")
 			if err := os.Rename(tmpDir+"/kitty_theme", dst); err != nil {
-				panic(fmt.Errorf("failed to rename kitty_theme to %s: %w", dst, err))
+				fmt.Fprintf(os.Stderr, "failed to rename kitty_theme to %s: %v\n", dst, err)
+				os.Exit(1)
 			}
 
 			chezmoiApply()
@@ -142,10 +155,23 @@ var switchCmd = &cobra.Command{
 		if viper.GetBool("macos_system_appearance.enable") {
 			switchMacOSSystemAppearanceScript := filepath.Join(scriptsDir, "switch_system_appearance.lua")
 			if err := exec.Command("lua", switchMacOSSystemAppearanceScript, curTheme).Run(); err != nil {
-				panic(fmt.Errorf("failed to run switch macos system appearance: %w", err))
+				fmt.Fprintf(os.Stderr, "failed to run switch macos system appearance: %v\n", err)
+				os.Exit(1)
 			}
 		}
 
+		// Borders
+		if viper.GetBool("borders.enable") {
+			fp := viper.GetString("borders.file_path")
+			switchBordersScript := filepath.Join(scriptsDir, "switch_borders.lua")
+			if err := exec.Command("lua", switchBordersScript, fp, curTheme).Run(); err != nil {
+				fmt.Fprintf(os.Stderr, "failed to run switch borders: %v\n", err)
+				os.Exit(1)
+			}
+
+			exec.Command("chezmoi", "add", fp).Run()
+			exec.Command("brew", "services", "restart", "borders").Run()
+		}
 	},
 }
 

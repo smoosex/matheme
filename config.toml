@@ -10,7 +10,6 @@ auto = true
 [wallpaper.wallpapers]
 default = "stairs.jpg" # if theme is not specified, default wallpaper will be used
 
-ayu_light = "beach.jpg"
 one_light = "beach.jpg"
 tundra = "mount.jpg"
 bearded-arc = "mountain.png"
@@ -44,3 +43,7 @@ theme_path = "/Users/smoose/.local/share/chezmoi/dot_config/kitty/themes/matheme
 
 [macos_system_appearance]
 enable = true
+
+[borders]
+enable = true
+file_path = "/Users/smoose/.config/borders/bordersrc"
