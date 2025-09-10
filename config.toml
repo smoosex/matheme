@@ -16,6 +16,7 @@ bearded-arc = "mountain.png"
 everforest = "stairs.jpg"
 gruvbox = "railtrack.jpg"
 gruvchad = "railtrack.jpg"
+rosepine = "wallhaven.png"
 
 # I use chezmoi to manage my dotfiles, if you don't use it, you should substitute the theme paths below with your own
 [alacritty]
