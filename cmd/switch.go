@@ -91,6 +91,11 @@ var switchCmd = &cobra.Command{
 				os.Exit(1)
 			}
 			chezmoiApply()
+
+			if err := exec.Command("sketchybar", "--reload").Run(); err != nil {
+				fmt.Fprintf(os.Stderr, "failed to reload sketchybar: %v\n", err)
+				os.Exit(1)
+			}
 		}
 
 		// Switch wallpaper
