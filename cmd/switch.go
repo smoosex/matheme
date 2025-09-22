@@ -5,10 +5,12 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"sync"
 	"time"
 
 	"github.com/matheme/cmd/common"
 	"github.com/matheme/pkg"
+	"github.com/matheme/pkg/apply"
 
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
@@ -27,155 +29,192 @@ var switchCmd = &cobra.Command{
 			os.Exit(1)
 		}
 
-		homeDir := os.Getenv("HOME")
-		scriptsDir := filepath.Join(homeDir, ".config", "matheme", "scripts")
 		tmpDir := "/tmp/matheme"
+		theme, err := pkg.ParseTheme(curTheme)
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "failed to parse theme %s: %v\n", curTheme, err)
+			os.Exit(1)
+		}
 
-		chezmoiApply := func() {
+		var wg sync.WaitGroup
+		var mu sync.Mutex
+		errs := make(chan error, 9)
+
+		chezmoiFiles := make([]string, 0)
+		chezmoiFiles = append(chezmoiFiles, "add")
+
+		addChezmoiFiles := func(path string) {
 			if viper.GetBool("chezmoi.enable") {
-				exec.Command("chezmoi", "apply", "--force").Run()
+				mu.Lock()
+				defer mu.Unlock()
+				chezmoiFiles = append(chezmoiFiles, path)
 			}
 		}
 
 		// Neovim
-		if viper.GetBool("nvim.enable") {
-			nvimConfigDir := viper.GetString("nvim.init_path")
-			switchNvimDirScript := filepath.Join(scriptsDir, "switch_nvim_theme.lua")
-			if err := exec.Command("nvim", "-u", nvimConfigDir, "-l", switchNvimDirScript, "--theme", curTheme).Run(); err != nil {
-				fmt.Fprintf(os.Stderr, "failed to run switch nvim: %v\n", err)
-				os.Exit(1)
-			}
-			if viper.GetBool("chezmoi.enable") {
-				chadrcPath := viper.GetString("nvim.chadrc_path")
-				exec.Command("chezmoi", "add", chadrcPath).Run()
-			}
+		if viper.GetBool("neovim.enable") {
+			wg.Add(1)
+			go func() {
+				defer wg.Done()
+				chadrcPath := viper.GetString("neovim.chadrc_path")
+				if err := apply.SwitchNvimThemeInGo(curTheme, chadrcPath); err != nil {
+					errs <- fmt.Errorf("failed to switch nvim theme: %v", err)
+					return
+				}
+				addChezmoiFiles(chadrcPath)
+			}()
 		}
 
 		// Alacritty
 		if viper.GetBool("alacritty.enable") {
-			genAlacrittyThemeScript := filepath.Join(scriptsDir, "gen_alacritty_theme.lua")
-			if err := exec.Command(
-				"lua", genAlacrittyThemeScript, curTheme).
-				Run(); err != nil {
-				fmt.Fprintf(os.Stderr, "failed to run gen alacritty theme: %v\n", err)
-				os.Exit(1)
-			}
-
-			dst := viper.GetString("alacritty.theme_path")
-			if err := os.Rename(tmpDir+"/alacritty_theme.toml", dst); err != nil {
-				fmt.Fprintf(os.Stderr, "failed to rename theme.toml to %s: %v\n", dst, err)
-				os.Exit(1)
-			}
-
-			chezmoiApply()
-
-			now := time.Now()
-			if err := os.Chtimes(viper.GetString("alacritty.config_path"), now, now); err != nil {
-				fmt.Fprintf(os.Stderr, "failed to update config file timestamp: %v\n", err)
-				os.Exit(1)
-			}
+			wg.Add(1)
+			go func() {
+				defer wg.Done()
+				if err := apply.ApplyAlacrittyTheme(theme); err != nil {
+					errs <- fmt.Errorf("failed to apply alacritty theme: %v", err)
+					return
+				}
+				dst := viper.GetString("alacritty.theme_path")
+				if err := os.Rename(tmpDir+"/alacritty_theme.toml", dst); err != nil {
+					errs <- fmt.Errorf("failed to rename theme.toml to %s: %v", dst, err)
+					return
+				}
+				now := time.Now()
+				if err := os.Chtimes(viper.GetString("alacritty.config_path"), now, now); err != nil {
+					errs <- fmt.Errorf("failed to update alacritty config file timestamp: %v", err)
+					return
+				}
+				addChezmoiFiles(dst)
+			}()
 		}
 
 		// Sketchybar
 		if viper.GetBool("sketchybar.enable") {
-			genSketchybarThemeScript := filepath.Join(scriptsDir, "gen_sketchybar_theme.lua")
-			if err := exec.Command(
-				"lua", genSketchybarThemeScript, curTheme).
-				Run(); err != nil {
-				fmt.Fprintf(os.Stderr, "failed to run gen sketchybar theme: %v\n", err)
-				os.Exit(1)
-			}
-			dst := viper.GetString("sketchybar.theme_path")
-			if err := os.Rename(tmpDir+"/sketchybar_theme.lua", dst); err != nil {
-				fmt.Fprintf(os.Stderr, "failed to rename init.lua to %s: %v\n", dst, err)
-				os.Exit(1)
-			}
-			chezmoiApply()
-
-			if err := exec.Command("sketchybar", "--reload").Run(); err != nil {
-				fmt.Fprintf(os.Stderr, "failed to reload sketchybar: %v\n", err)
-				os.Exit(1)
-			}
+			wg.Add(1)
+			go func() {
+				defer wg.Done()
+				if err := apply.ApplySketchybarTheme(theme); err != nil {
+					errs <- fmt.Errorf("failed to apply sketchybar theme: %v", err)
+					return
+				}
+				dst := viper.GetString("sketchybar.theme_path")
+				if err := os.Rename(tmpDir+"/sketchybar_theme.lua", dst); err != nil {
+					errs <- fmt.Errorf("failed to rename init.lua to %s: %v", dst, err)
+					return
+				}
+				if err := exec.Command("sketchybar", "--reload").Run(); err != nil {
+					errs <- fmt.Errorf("failed to reload sketchybar: %v", err)
+					return
+				}
+				addChezmoiFiles(dst)
+			}()
 		}
 
 		// Switch wallpaper
 		if viper.GetBool("wallpaper.auto") {
-			switchWallpaperScript := filepath.Join(scriptsDir, "switch_wallpaper.lua")
-			curWallpaper := viper.GetString("wallpaper.wallpapers." + curTheme)
-			if curWallpaper == "" {
-				curWallpaper = viper.GetString("wallpaper.wallpapers.default")
-			}
-			if curWallpaper == "" {
-				fmt.Fprintf(os.Stderr, "wallpaper for theme %s not found\n", curTheme)
-				os.Exit(1)
-			}
-			if err := exec.Command("lua", switchWallpaperScript, curWallpaper).Run(); err != nil {
-				fmt.Fprintf(os.Stderr, "failed to run switch wallpaper: %v\n", err)
-				os.Exit(1)
-			}
-
+			wg.Add(1)
+			go func() {
+				defer wg.Done()
+				curWallpaper := viper.GetString("wallpaper.wallpapers." + curTheme)
+				if curWallpaper == "" {
+					curWallpaper = viper.GetString("wallpaper.wallpapers.default")
+				}
+				if curWallpaper == "" {
+					errs <- fmt.Errorf("wallpaper for theme %s not found", curTheme)
+					return
+				}
+				homeDir, _ := os.UserHomeDir() // 使用 UserHomeDir() 更可靠
+				wallpaperDir := filepath.Join(homeDir, ".config", "matheme", "wallpaper")
+				wallpaperPath := filepath.Join(wallpaperDir, curWallpaper)
+				if err := apply.ApplyWallpaper(wallpaperPath); err != nil {
+					errs <- fmt.Errorf("failed to apply wallpaper: %v", err)
+				}
+			}()
 		}
 
 		// Ghostty
 		if viper.GetBool("ghostty.enable") {
-			genGhosttyThemeScript := filepath.Join(scriptsDir, "gen_ghostty_theme.lua")
-			if err := exec.Command(
-				"lua", genGhosttyThemeScript, curTheme).
-				Run(); err != nil {
-				fmt.Fprintf(os.Stderr, "failed to run gen ghostty theme: %v\n", err)
-				os.Exit(1)
-			}
-
-			dst := viper.GetString("ghostty.theme_path")
-			if err := os.Rename(tmpDir+"/ghostty_theme", dst); err != nil {
-				fmt.Fprintf(os.Stderr, "failed to rename ghostty_theme to %s: %v\n", dst, err)
-				os.Exit(1)
-			}
-
-			chezmoiApply()
-			exec.Command("pkill", "-SIGUSR2", "ghostty").Run()
+			wg.Add(1)
+			go func() {
+				defer wg.Done()
+				if err := apply.ApplyGhosttyTheme(theme); err != nil {
+					errs <- fmt.Errorf("failed to apply ghostty theme: %v", err)
+					return
+				}
+				dst := viper.GetString("ghostty.theme_path")
+				if err := os.Rename(tmpDir+"/ghostty_theme", dst); err != nil {
+					errs <- fmt.Errorf("failed to rename ghostty_theme to %s: %v", dst, err)
+					return
+				}
+				exec.Command("pkill", "-SIGUSR2", "ghostty").Run()
+				addChezmoiFiles(dst)
+			}()
 		}
 
 		// Kitty
 		if viper.GetBool("kitty.enable") {
-			genKittyThemeScript := filepath.Join(scriptsDir, "gen_kitty_theme.lua")
-			if err := exec.Command(
-				"lua", genKittyThemeScript, curTheme).
-				Run(); err != nil {
-				fmt.Fprintf(os.Stderr, "failed to run gen kitty theme: %v\n", err)
-				os.Exit(1)
-			}
-
-			dst := viper.GetString("kitty.theme_path")
-			if err := os.Rename(tmpDir+"/kitty_theme", dst); err != nil {
-				fmt.Fprintf(os.Stderr, "failed to rename kitty_theme to %s: %v\n", dst, err)
-				os.Exit(1)
-			}
-
-			chezmoiApply()
-			exec.Command("pkill", "-SIGUSR1", "kitty").Run()
+			wg.Add(1)
+			go func() {
+				defer wg.Done()
+				if err := apply.ApplyKittyTheme(theme); err != nil {
+					errs <- fmt.Errorf("failed to apply kitty theme: %v", err)
+					return
+				}
+				dst := viper.GetString("kitty.theme_path")
+				if err := os.Rename(tmpDir+"/kitty_theme", dst); err != nil {
+					errs <- fmt.Errorf("failed to rename kitty_theme to %s: %v", dst, err)
+					return
+				}
+				exec.Command("pkill", "-SIGUSR1", "kitty").Run()
+				addChezmoiFiles(dst)
+			}()
 		}
 
 		// MacOS System Appearance Mode
 		if viper.GetBool("macos_system_appearance.enable") {
-			switchMacOSSystemAppearanceScript := filepath.Join(scriptsDir, "switch_system_appearance.lua")
-			if err := exec.Command("lua", switchMacOSSystemAppearanceScript, curTheme).Run(); err != nil {
-				fmt.Fprintf(os.Stderr, "failed to run switch macos system appearance: %v\n", err)
-				os.Exit(1)
-			}
+			wg.Add(1)
+			go func() {
+				defer wg.Done()
+				if err := apply.ApplySystemAppearance(theme); err != nil {
+					errs <- fmt.Errorf("failed to apply macos system appearance: %v", err)
+				}
+			}()
 		}
 
 		// Borders
 		if viper.GetBool("borders.enable") {
-			fp := viper.GetString("borders.file_path")
-			switchBordersScript := filepath.Join(scriptsDir, "switch_borders.lua")
-			if err := exec.Command("lua", switchBordersScript, fp, curTheme).Run(); err != nil {
-				fmt.Fprintf(os.Stderr, "failed to run switch borders: %v\n", err)
+			wg.Add(1)
+			go func() {
+				defer wg.Done()
+				fp := viper.GetString("borders.file_path")
+				if err := apply.ApplyBordersTheme(theme, fp); err != nil {
+					errs <- fmt.Errorf("failed to apply borders theme: %v", err)
+					return
+				}
+				exec.Command("brew", "services", "restart", "borders").Run()
+				addChezmoiFiles(fp)
+			}()
+		}
+
+		wg.Wait()
+		close(errs)
+
+		var hasErrors bool
+		for err := range errs {
+			fmt.Fprintf(os.Stderr, "%v\n", err)
+			hasErrors = true
+		}
+		if hasErrors {
+			fmt.Fprintln(os.Stderr, "One or more tasks failed. Aborting.")
+			os.Exit(1)
+		}
+
+		if len(chezmoiFiles) > 1 {
+			fmt.Println("Applying changes with chezmoi...")
+			if err := exec.Command("chezmoi", chezmoiFiles...).Run(); err != nil {
+				fmt.Fprintf(os.Stderr, "failed to run chezmoi: %v\n", err)
 				os.Exit(1)
 			}
-
-			exec.Command("chezmoi", "add", fp).Run()
-			exec.Command("brew", "services", "restart", "borders").Run()
 		}
 	},
 }
