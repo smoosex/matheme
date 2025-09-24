@@ -1,13 +1,17 @@
 package common
 
 import (
+	"fmt"
 	"os"
 	"path/filepath"
 	"strings"
 )
 
 func ListThemes() []string {
-	homeDir := os.Getenv("HOME")
+	homeDir, err := os.UserHomeDir()
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "failed to get user home directory: %v\n", err)
+	}
 	themeDir := filepath.Join(homeDir, ".config/matheme/themes")
 	entries, err := os.ReadDir(themeDir)
 	if err != nil {

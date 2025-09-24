@@ -5,6 +5,7 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"strings"
 	"sync"
 	"time"
 
@@ -22,6 +23,26 @@ var switchCmd = &cobra.Command{
 	Short:   "Switch themes",
 	Long:    `Switch to specified theme.`,
 	Run: func(cmd *cobra.Command, args []string) {
+		homeDir, err := os.UserHomeDir()
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "failed to get user home directory: %v\n", err)
+			os.Exit(1)
+		}
+		stateFilePath := filepath.Join(homeDir, ".config", "matheme", "current_theme")
+
+		var recordedTheme string
+		if content, err := os.ReadFile(stateFilePath); err == nil {
+			recordedTheme = strings.TrimSpace(string(content))
+		} else if !os.IsNotExist(err) {
+			fmt.Fprintf(os.Stderr, "failed to read state file %s: %v\n", stateFilePath, err)
+			os.Exit(1)
+		}
+
+		if curTheme == recordedTheme {
+			fmt.Printf("Theme '%s' is already active. No action taken.\n", curTheme)
+			os.Exit(0)
+		}
+
 		// Check if theme exists
 		themes := common.ListThemes()
 		if !pkg.Contains(themes, curTheme) {
@@ -207,6 +228,15 @@ var switchCmd = &cobra.Command{
 		if hasErrors {
 			fmt.Fprintln(os.Stderr, "One or more tasks failed. Aborting.")
 			os.Exit(1)
+		}
+
+		configDir := filepath.Dir(stateFilePath)
+		if err := os.MkdirAll(configDir, 0755); err != nil {
+			fmt.Fprintf(os.Stderr, "failed to create config directory %s: %v\n", configDir, err)
+			os.Exit(1)
+		}
+		if err := os.WriteFile(stateFilePath, []byte(curTheme), 0644); err != nil {
+			fmt.Fprintf(os.Stderr, "failed to write state file %s: %v\n", stateFilePath, err)
 		}
 
 		if len(chezmoiFiles) > 1 {
