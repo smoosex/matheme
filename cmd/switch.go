@@ -207,13 +207,12 @@ var switchCmd = &cobra.Command{
 			wg.Add(1)
 			go func() {
 				defer wg.Done()
-				fp := viper.GetString("borders.file_path")
-				if err := apply.ApplyBordersTheme(theme, fp); err != nil {
+				newColor := strings.TrimPrefix(theme.Base16["base08"], "#")
+				acConfig := fmt.Sprintf("active_color=0xff%s", newColor)
+				if err := exec.Command("borders", acConfig).Run(); err != nil {
 					errs <- fmt.Errorf("failed to apply borders theme: %v", err)
-					return
+					os.Exit(1)
 				}
-				exec.Command("brew", "services", "restart", "borders").Run()
-				addChezmoiFiles(fp)
 			}()
 		}
 
