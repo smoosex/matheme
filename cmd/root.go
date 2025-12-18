@@ -3,6 +3,7 @@ package cmd
 import (
 	"fmt"
 	"os"
+	"path"
 
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
@@ -30,7 +31,7 @@ func Execute() {
 
 func init() {
 	cobra.OnInitialize(initConfig)
-	rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/.mthemes.toml)")
+	rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/.config/matheme/config.toml)")
 	rootCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
 }
 
@@ -40,9 +41,9 @@ func initConfig() {
 	} else {
 		home, err := os.UserHomeDir()
 		cobra.CheckErr(err)
-
-		viper.AddConfigPath(home)
-		viper.AddConfigPath("/Users/smoose/Documents/Code/mine/matheme")
+		configDir := path.Join(home, ".config", "matheme")
+		viper.AddConfigPath(configDir)
+		viper.SetConfigName("config")
 		viper.SetConfigType("toml")
 		viper.SetConfigName("config")
 	}

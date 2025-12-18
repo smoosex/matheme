@@ -238,6 +238,8 @@ var switchCmd = &cobra.Command{
 			fmt.Fprintf(os.Stderr, "failed to write state file %s: %v\n", stateFilePath, err)
 		}
 
+		fmt.Println("Record current theme over...")
+
 		if len(chezmoiFiles) > 1 {
 			fmt.Println("Applying changes with chezmoi...")
 			if err := exec.Command("chezmoi", chezmoiFiles...).Run(); err != nil {

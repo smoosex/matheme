@@ -1,12 +1,12 @@
 # if you don't use chezmoi, you should set enable to false
 [chezmoi]
-enable = true 
+enable = true
 
- # if auto is true, wallpaper will be changed automatically when switching themes
+# if auto is true, wallpaper will be changed automatically when switching themes
 [wallpaper]
 auto = true
 
- # theme name -> wallpaper name
+# theme name -> wallpaper name
 [wallpaper.wallpapers]
 default = "stairs.jpg" # if theme is not specified, default wallpaper will be used
 
@@ -45,4 +45,4 @@ theme_path = "/Users/smoose/.config/kitty/themes/matheme.conf"
 enable = true
 
 [borders]
-enable = true
+enable = false
