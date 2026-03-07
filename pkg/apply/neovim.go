@@ -4,15 +4,17 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"os/exec"
 	"path/filepath"
 	"regexp"
 	"strconv"
+	"strings"
 	"syscall"
 
 	"github.com/neovim/go-client/nvim"
 )
 
-func SwitchNvimThemeInGo(curTheme, chadrcPath string) error {
+func SwitchNvimThemeInGo(curTheme, initPath, chadrcPath string) error {
 	content, err := os.ReadFile(chadrcPath)
 	if err != nil {
 		return fmt.Errorf("failed to read chadrc file '%s': %w", chadrcPath, err)
@@ -32,12 +34,9 @@ func SwitchNvimThemeInGo(curTheme, chadrcPath string) error {
 		return fmt.Errorf("error when find nvim socket: %w", err)
 	}
 
-	if len(sockets) == 0 {
-		return nil
-	}
-
 	pidRegex := regexp.MustCompile(`nvim\.(\d+)\..*$`)
 	reloadCmd := `require('nvchad.themes.utils').reload_theme(...)`
+	hasActiveSocket := false
 
 	for _, sock := range sockets {
 		matches := pidRegex.FindStringSubmatch(filepath.Base(sock))
@@ -55,15 +54,51 @@ func SwitchNvimThemeInGo(curTheme, chadrcPath string) error {
 			continue
 		}
 
+		hasActiveSocket = true
+
 		client, err := nvim.Dial(sock)
 		if err != nil {
 			log.Printf("failed to connect to the socket via Dial '%s': %v", sock, err)
+			continue
 		}
-		defer client.Close()
 
 		if err := client.ExecLua(reloadCmd, nil, curTheme); err != nil {
 			log.Printf("failed to send reload command to '%s': %v", sock, err)
 		}
+
+		if err := client.Close(); err != nil {
+			log.Printf("failed to close nvim client for '%s': %v", sock, err)
+		}
+	}
+
+	if hasActiveSocket {
+		return nil
+	}
+
+	if err := rebuildBase46Cache(initPath); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func rebuildBase46Cache(initPath string) error {
+	args := []string{"--headless"}
+	if initPath != "" {
+		args = append(args, "-u", initPath)
+	}
+	args = append(args,
+		"-c", "lua require('base46').load_all_highlights()",
+		"-c", "qall",
+	)
+
+	output, err := exec.Command("nvim", args...).CombinedOutput()
+	if err != nil {
+		trimmedOutput := strings.TrimSpace(string(output))
+		if trimmedOutput != "" {
+			return fmt.Errorf("failed to rebuild neovim base46 cache: %w: %s", err, trimmedOutput)
+		}
+		return fmt.Errorf("failed to rebuild neovim base46 cache: %w", err)
 	}
 
 	return nil

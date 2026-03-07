@@ -77,8 +77,9 @@ var switchCmd = &cobra.Command{
 			wg.Add(1)
 			go func() {
 				defer wg.Done()
+				initPath := viper.GetString("neovim.init_path")
 				chadrcPath := viper.GetString("neovim.chadrc_path")
-				if err := apply.SwitchNvimThemeInGo(curTheme, chadrcPath); err != nil {
+				if err := apply.SwitchNvimThemeInGo(curTheme, initPath, chadrcPath); err != nil {
 					errs <- fmt.Errorf("failed to switch nvim theme: %v", err)
 					return
 				}
