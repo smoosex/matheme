@@ -48,6 +48,7 @@ auto = true     # Automatically change wallpaper with theme
 
 [wallpaper.wallpapers]
 default = "stairs.jpg"
+everforest_light = "beach.jpg"
 rosepine = "wallhaven.png"
 everforest = "stairs.jpg"
 # ... add more theme -> wallpaper mappings
@@ -81,6 +82,8 @@ enable = false
 ```
 
 Add your theme files (TOML format) to `~/.config/matheme/themes/`:
+
+Built-in themes include `everforest`, `everforest_light`, `one_light`, `rosepine`, `gruvchad`, `tundra`, and `bearded-arc`.
 
 ```toml
 type = "dark"
@@ -122,6 +125,9 @@ Switch to a theme:
 matheme switch -t rosepine
 # or
 matheme sw -t rosepine
+
+# switch to Ever Forest Light
+matheme sw -t everforest_light
 ```
 
 ## Showcase

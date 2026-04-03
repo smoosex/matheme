@@ -11,6 +11,7 @@ auto = true
 default = "stairs.jpg" # if theme is not specified, default wallpaper will be used
 
 one_light = "beach.jpg"
+everforest_light = "beach.jpg"
 tundra = "mount.jpg"
 bearded-arc = "mountain.png"
 everforest = "stairs.jpg"
