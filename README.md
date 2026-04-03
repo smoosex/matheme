@@ -5,7 +5,7 @@ A macOS theme manager CLI that synchronizes themes across multiple applications.
 ## Features
 
 - **One-command theme switching**: Apply a consistent theme across all supported applications
-- **Multiple app support**: Neovim (NvChad), SketchyBar, Alacritty, Ghostty, Kitty, Borders
+- **Multiple app support**: Neovim (NvChad), SketchyBar, Alacritty, Ghostty, Kitty, Tmux, Borders
 - **Wallpaper automation**: Automatically switch wallpapers based on selected theme
 - **System appearance**: Toggles macOS dark/light mode
 - ** chezmoi integration**: Optional dotfile management support
@@ -17,6 +17,7 @@ A macOS theme manager CLI that synchronizes themes across multiple applications.
 - [x] Alacritty
 - [x] Ghostty (1.20+)
 - [x] Kitty
+- [x] Tmux
 - [x] Borders
 - [x] macOS System Appearance
 - [x] Desktop Wallpaper
@@ -74,6 +75,11 @@ theme_path = "/Users/yourname/.config/ghostty/themes/matheme"
 enable = true
 theme_path = "/Users/yourname/.config/kitty/themes/matheme.conf"
 
+[tmux]
+enable = true
+switch_script_path = "/Users/yourname/.local/share/tmux/plugins/tmux-theme/scripts/theme_menu.sh"
+current_theme_path = "/Users/yourname/.config/tmux/theme/current_theme.conf"
+
 [macos_system_appearance]
 enable = true
 
@@ -108,6 +114,26 @@ base0F = "#524f67"
 ```
 
 Place wallpapers in `~/.config/matheme/wallpaper/`.
+
+If you enable Tmux support, install [`smoosex/tmux-theme`](https://github.com/smoosex/tmux-theme) first.
+`matheme` calls the plugin's `theme_menu.sh switch <theme>` script directly, and the plugin is responsible for persisting the selected theme and reloading tmux when needed.
+
+TPM example:
+
+```tmux
+source-file -q ~/.config/tmux/theme/current_theme.conf
+
+set -g @plugin 'smoosex/tmux-theme'
+set -g @theme_switch_key "T"
+
+run '~/.tmux/plugins/tpm/tpm'
+```
+
+Then make sure your tmux config loads the plugin:
+
+```tmux
+run ~/.config/tmux/plugins/tmux-theme/theme.tmux
+```
 
 ## Usage
 

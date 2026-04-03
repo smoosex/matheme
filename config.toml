@@ -42,6 +42,11 @@ theme_path = "/Users/smoose/.config/ghostty/themes/matheme"
 enable = true
 theme_path = "/Users/smoose/.config/kitty/themes/matheme.conf"
 
+[tmux]
+enable = true
+switch_script_path = "/Users/smoose/.local/share/tmux/plugins/tmux-theme/scripts/theme_menu.sh"
+current_theme_path = "/Users/smoose/.config/tmux/theme/current_theme.conf"
+
 [macos_system_appearance]
 enable = true
 

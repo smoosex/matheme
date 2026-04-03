@@ -59,7 +59,7 @@ var switchCmd = &cobra.Command{
 
 		var wg sync.WaitGroup
 		var mu sync.Mutex
-		errs := make(chan error, 9)
+		errs := make(chan error, 12)
 
 		chezmoiFiles := make([]string, 0)
 		chezmoiFiles = append(chezmoiFiles, "add")
@@ -189,6 +189,24 @@ var switchCmd = &cobra.Command{
 				}
 				exec.Command("pkill", "-SIGUSR1", "kitty").Run()
 				addChezmoiFiles(dst)
+			}()
+		}
+
+		// Tmux
+		if viper.GetBool("tmux.enable") {
+			wg.Add(1)
+			go func() {
+				defer wg.Done()
+				scriptPath := viper.GetString("tmux.switch_script_path")
+				if err := apply.ApplyTmuxTheme(scriptPath, curTheme); err != nil {
+					errs <- fmt.Errorf("failed to apply tmux theme: %v", err)
+					return
+				}
+
+				currentThemePath := viper.GetString("tmux.current_theme_path")
+				if currentThemePath != "" {
+					addChezmoiFiles(currentThemePath)
+				}
 			}()
 		}
 

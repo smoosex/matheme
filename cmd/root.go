@@ -19,7 +19,7 @@ var rootCmd = &cobra.Command{
 	Short: "A theme manager for macOS",
 	Long: `This tool is used to switch themes om macOS:
 
-Now it supports Alacritty, Neovim, Sketchybar.`,
+Now it supports Alacritty, Neovim, Sketchybar, Tmux.`,
 }
 
 func Execute() {
