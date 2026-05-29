@@ -2,10 +2,16 @@
 
 A macOS theme manager CLI that synchronizes themes across multiple applications.
 
+## Showcase
+
+<img width="1920" height="1080" alt="Theme showcase" src="https://github.com/user-attachments/assets/b6f10662-207f-49a4-85ef-595845ed6c1f" />
+<img width="1920" height="1080" alt="Theme showcase 2" src="https://github.com/user-attachments/assets/0ecd9686-abd9-4de2-9780-5ea003a1515d" />
+<img width="1920" height="1080" alt="Theme showcase 3" src="https://github.com/user-attachments/assets/327e7345-8c1f-43b5-9c09-0a8e73279509" />
+
 ## Features
 
 - **One-command theme switching**: Apply a consistent theme across all supported applications
-- **Multiple app support**: Neovim (NvChad), SketchyBar, Alacritty, Ghostty, Kitty, Tmux, Borders
+- **Multiple app support**: Neovim (NvChad), SketchyBar, Alacritty, Ghostty, Kitty, Tmux, Borders, pi
 - **Wallpaper automation**: Automatically switch wallpapers based on selected theme
 - **System appearance**: Toggles macOS dark/light mode
 - ** chezmoi integration**: Optional dotfile management support
@@ -21,6 +27,7 @@ A macOS theme manager CLI that synchronizes themes across multiple applications.
 - [x] Borders
 - [x] macOS System Appearance
 - [x] Desktop Wallpaper
+- [x] pi
 
 ## Installation
 
@@ -83,6 +90,10 @@ current_theme_path = "/Users/yourname/.config/tmux/theme/current_theme.conf"
 [macos_system_appearance]
 enable = true
 
+[pi]
+enable = true
+control_file_path = "/Users/yourname/.pi/agent/pi-theme.json"
+
 [borders]
 enable = false
 ```
@@ -114,6 +125,18 @@ base0F = "#524f67"
 ```
 
 Place wallpapers in `~/.config/matheme/wallpaper/`.
+
+When `[pi].enable` is true, `matheme` also updates `[pi].control_file_path` if the selected theme has a pi theme mapping. This requires the [`smoosex/pi-themes`](https://github.com/smoosex/pi-themes) plugin for pi. If `control_file_path` is empty, it falls back to `~/.pi/agent/pi-theme.json`:
+
+| matheme theme | pi theme |
+| --- | --- |
+| `one_light` | `onedark-light` |
+| `gruvchad` | `gruvbox-dark` |
+| `rosepine` | `rosepine-dark` |
+| `everforest` | `everforest-dark` |
+| `everforest_light` | `everforest-light` |
+| `tundra` | `tundra-dark` |
+| `bearded-arc` | `bearded-arc-dark` |
 
 If you enable Tmux support, install [`smoosex/tmux-theme`](https://github.com/smoosex/tmux-theme) first.
 `matheme` calls the plugin's `theme_menu.sh switch <theme>` script directly, and the plugin is responsible for persisting the selected theme and reloading tmux when needed.
@@ -155,12 +178,6 @@ matheme sw -t rosepine
 # switch to Ever Forest Light
 matheme sw -t everforest_light
 ```
-
-## Showcase
-
-<img width="1920" height="1080" alt="Theme showcase" src="https://github.com/user-attachments/assets/b6f10662-207f-49a4-85ef-595845ed6c1f" />
-<img width="1920" height="1080" alt="Theme showcase 2" src="https://github.com/user-attachments/assets/0ecd9686-abd9-4de2-9780-5ea003a1515d" />
-<img width="1920" height="1080" alt="Theme showcase 3" src="https://github.com/user-attachments/assets/327e7345-8c1f-43b5-9c09-0a8e73279509" />
 
 ## Credits
 

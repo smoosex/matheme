@@ -59,7 +59,7 @@ var switchCmd = &cobra.Command{
 
 		var wg sync.WaitGroup
 		var mu sync.Mutex
-		errs := make(chan error, 12)
+		errs := make(chan error, 13)
 
 		chezmoiFiles := make([]string, 0)
 		chezmoiFiles = append(chezmoiFiles, "add")
@@ -217,6 +217,17 @@ var switchCmd = &cobra.Command{
 				defer wg.Done()
 				if err := apply.ApplySystemAppearance(theme); err != nil {
 					errs <- fmt.Errorf("failed to apply macos system appearance: %v", err)
+				}
+			}()
+		}
+
+		// Pi
+		if viper.GetBool("pi.enable") {
+			wg.Add(1)
+			go func() {
+				defer wg.Done()
+				if err := apply.ApplyPiTheme(curTheme, viper.GetString("pi.control_file_path")); err != nil {
+					errs <- fmt.Errorf("failed to apply pi theme: %v", err)
 				}
 			}()
 		}

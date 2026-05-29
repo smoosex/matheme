@@ -50,5 +50,9 @@ current_theme_path = "/Users/smoose/.config/tmux/theme/current_theme.conf"
 [macos_system_appearance]
 enable = true
 
+[pi]
+enable = true
+control_file_path = "/Users/smoose/.pi/agent/pi-theme.json"
+
 [borders]
 enable = false
