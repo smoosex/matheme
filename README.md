@@ -11,7 +11,7 @@ A macOS theme manager CLI that synchronizes themes across multiple applications.
 ## Features
 
 - **One-command theme switching**: Apply a consistent theme across all supported applications
-- **Multiple app support**: Neovim (NvChad), SketchyBar, Alacritty, Ghostty, Kitty, Tmux, Borders, pi
+- **Multiple app support**: Neovim (NvChad), SketchyBar, Alacritty, Ghostty, Kitty, Tmux, Borders, pi, Rime (Squirrel)
 - **Wallpaper automation**: Automatically switch wallpapers based on selected theme
 - **System appearance**: Toggles macOS dark/light mode
 - ** chezmoi integration**: Optional dotfile management support
@@ -28,6 +28,7 @@ A macOS theme manager CLI that synchronizes themes across multiple applications.
 - [x] macOS System Appearance
 - [x] Desktop Wallpaper
 - [x] pi
+- [x] Rime (Squirrel)
 
 ## Installation
 
@@ -94,6 +95,11 @@ enable = true
 enable = true
 control_file_path = "/Users/yourname/.pi/agent/pi-theme.json"
 
+# Rime input method (Squirrel on macOS)
+[rime]
+enable = false
+config_dir = "/Users/yourname/Library/Rime"
+
 [borders]
 enable = false
 ```
@@ -137,6 +143,22 @@ When `[pi].enable` is true, `matheme` also updates `[pi].control_file_path` if t
 | `everforest_light` | `everforest-light` |
 | `tundra` | `tundra-dark` |
 | `bearded-arc` | `bearded-arc-dark` |
+
+### Rime (Squirrel)
+
+When `[rime].enable` is true, `matheme` generates `matheme_squirrel.yaml` (a `preset_color_schemes` block converted from the base16 palette) into `[rime].config_dir` and invokes Squirrel's `--reload` to redeploy.
+
+This needs a one-time wiring in your `squirrel.custom.yaml`:
+
+```yaml
+patch:
+  "style/color_scheme": matheme
+  "style/color_scheme_dark": matheme
+  "preset_color_schemes/+":
+    __include: matheme_squirrel:/preset_color_schemes
+```
+
+After this, every `matheme switch` updates the look of your input method candidate window along with everything else.
 
 If you enable Tmux support, install [`smoosex/tmux-theme`](https://github.com/smoosex/tmux-theme) first.
 `matheme` calls the plugin's `theme_menu.sh switch <theme>` script directly, and the plugin is responsible for persisting the selected theme and reloading tmux when needed.

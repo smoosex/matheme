@@ -54,5 +54,10 @@ enable = true
 enable = true
 control_file_path = "/Users/smoose/.pi/agent/pi-theme.json"
 
+# Rime input method (Squirrel on macOS)
+[rime]
+enable = true
+config_dir = "/Users/smoose/Library/Rime"
+
 [borders]
 enable = false
