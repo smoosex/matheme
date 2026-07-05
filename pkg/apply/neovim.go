@@ -2,7 +2,6 @@ package apply
 
 import (
 	"fmt"
-	"log"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -58,16 +57,16 @@ func SwitchNvimThemeInGo(curTheme, initPath, chadrcPath string) error {
 
 		client, err := nvim.Dial(sock)
 		if err != nil {
-			log.Printf("failed to connect to the socket via Dial '%s': %v", sock, err)
+			fmt.Fprintf(os.Stderr, "failed to connect to the socket via Dial '%s': %v\n", sock, err)
 			continue
 		}
 
 		if err := client.ExecLua(reloadCmd, nil, curTheme); err != nil {
-			log.Printf("failed to send reload command to '%s': %v", sock, err)
+			fmt.Fprintf(os.Stderr, "failed to send reload command to '%s': %v\n", sock, err)
 		}
 
 		if err := client.Close(); err != nil {
-			log.Printf("failed to close nvim client for '%s': %v", sock, err)
+			fmt.Fprintf(os.Stderr, "failed to close nvim client for '%s': %v\n", sock, err)
 		}
 	}
 

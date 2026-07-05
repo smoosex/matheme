@@ -36,14 +36,12 @@ func ApplySketchybarTheme(theme *pkg.Theme) error {
 
 	tmpDir := "/tmp/matheme"
 	if err := os.MkdirAll(tmpDir, 0755); err != nil {
-		fmt.Fprintf(os.Stderr, "failed to create temp dir: %v\n", err)
-		return err
+		return fmt.Errorf("failed to create temp dir: %w", err)
 	}
 
 	filePath := filepath.Join(tmpDir, "sketchybar_theme.lua")
 	if err := os.WriteFile(filePath, buf.Bytes(), 0644); err != nil {
-		fmt.Fprintf(os.Stderr, "failed to write sketchybar theme file: %v\n", err)
-		return err
+		return fmt.Errorf("failed to write sketchybar theme file: %w", err)
 	}
 
 	return nil

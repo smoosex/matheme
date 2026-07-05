@@ -237,7 +237,7 @@ var switchCmd = &cobra.Command{
 			wg.Add(1)
 			go func() {
 				defer wg.Done()
-				dst, err := apply.ApplyRimeTheme(theme, viper.GetString("rime.config_dir"))
+				err := apply.ApplyRimeTheme(theme, viper.GetString("rime.config_dir"))
 				if err != nil {
 					errs <- fmt.Errorf("failed to apply rime theme: %v", err)
 					return
@@ -246,7 +246,6 @@ var switchCmd = &cobra.Command{
 					errs <- fmt.Errorf("failed to reload squirrel: %v", err)
 					return
 				}
-				addChezmoiFiles(dst)
 			}()
 		}
 

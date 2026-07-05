@@ -12,8 +12,7 @@ import (
 func ApplyBordersTheme(theme *pkg.Theme, filePath string) error {
 	file, err := os.Open(filePath)
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "failed to open borders file %s: %v\n", filePath, err)
-		return err
+		return fmt.Errorf("failed to open borders file %s: %w", filePath, err)
 	}
 	defer file.Close()
 
@@ -40,14 +39,12 @@ func ApplyBordersTheme(theme *pkg.Theme, filePath string) error {
 	}
 
 	if err := scanner.Err(); err != nil {
-		fmt.Fprintf(os.Stderr, "error reading borders file: %v\n", err)
-		return err
+		return fmt.Errorf("error reading borders file: %w", err)
 	}
 
 	output := strings.Join(lines, "\n")
 	if err := os.WriteFile(filePath, []byte(output), 0644); err != nil {
-		fmt.Fprintf(os.Stderr, "failed to write updated borders file: %v\n", err)
-		return err
+		return fmt.Errorf("failed to write updated borders file: %w", err)
 	}
 
 	return nil
