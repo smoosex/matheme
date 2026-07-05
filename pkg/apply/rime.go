@@ -30,11 +30,11 @@ func hilitedTextColor(theme *pkg.Theme) string {
 
 // ApplyRimeTheme writes a matheme color scheme file for squirrel (Rime on macOS).
 // The generated file is included by squirrel.custom.yaml via __include.
-func ApplyRimeTheme(theme *pkg.Theme, rimeDir string) (string, error) {
+func ApplyRimeTheme(theme *pkg.Theme, rimeDir string) error {
 	if rimeDir == "" {
 		homeDir, err := os.UserHomeDir()
 		if err != nil {
-			return "", fmt.Errorf("failed to get user home directory: %w", err)
+			return fmt.Errorf("failed to get user home directory: %w", err)
 		}
 		rimeDir = filepath.Join(homeDir, "Library", "Rime")
 	}
@@ -75,15 +75,15 @@ preset_color_schemes:
 	)
 
 	if err := os.MkdirAll(rimeDir, 0755); err != nil {
-		return "", fmt.Errorf("failed to create rime config directory: %w", err)
+		return fmt.Errorf("failed to create rime config directory: %w", err)
 	}
 
 	dst := filepath.Join(rimeDir, "matheme_squirrel.yaml")
 	if err := os.WriteFile(dst, []byte(content), 0644); err != nil {
-		return "", fmt.Errorf("failed to write rime theme file: %w", err)
+		return fmt.Errorf("failed to write rime theme file: %w", err)
 	}
 
-	return dst, nil
+	return nil
 }
 
 // ReloadSquirrel triggers an async redeploy of squirrel to apply config changes.
