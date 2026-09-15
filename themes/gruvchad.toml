@@ -1,4 +1,5 @@
 type = "dark"
+accent = "#e0c080"
 
 [base_16]
 base00 = "#1e2122"

@@ -59,7 +59,7 @@ var switchCmd = &cobra.Command{
 
 		var wg sync.WaitGroup
 		var mu sync.Mutex
-		errs := make(chan error, 13)
+		errs := make(chan error, 14)
 
 		chezmoiFiles := make([]string, 0)
 		chezmoiFiles = append(chezmoiFiles, "add")
@@ -188,6 +188,24 @@ var switchCmd = &cobra.Command{
 					return
 				}
 				exec.Command("pkill", "-SIGUSR1", "kitty").Run()
+				addChezmoiFiles(dst)
+			}()
+		}
+
+		// Starship
+		if viper.GetBool("starship.enable") {
+			wg.Add(1)
+			go func() {
+				defer wg.Done()
+				if err := apply.ApplyStarshipTheme(theme); err != nil {
+					errs <- fmt.Errorf("failed to apply starship theme: %v", err)
+					return
+				}
+				dst := viper.GetString("starship.config_path")
+				if err := os.Rename(tmpDir+"/starship_theme.toml", dst); err != nil {
+					errs <- fmt.Errorf("failed to rename starship_theme.toml to %s: %v", dst, err)
+					return
+				}
 				addChezmoiFiles(dst)
 			}()
 		}

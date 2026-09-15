@@ -10,6 +10,7 @@ import (
 
 type Theme struct {
 	Type   string            `toml:"type"`
+	Accent string            `toml:"accent"`
 	Base16 map[string]string `toml:"base_16"`
 }
 

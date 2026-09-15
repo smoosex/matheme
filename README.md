@@ -11,7 +11,7 @@ A macOS theme manager CLI that synchronizes themes across multiple applications.
 ## Features
 
 - **One-command theme switching**: Apply a consistent theme across all supported applications
-- **Multiple app support**: Neovim (NvChad), SketchyBar, Alacritty, Ghostty, Kitty, Tmux, Borders, pi, Rime (Squirrel)
+- **Multiple app support**: Neovim (NvChad), SketchyBar, Alacritty, Ghostty, Kitty, Tmux, Borders, pi, Rime (Squirrel), Starship
 - **Wallpaper automation**: Automatically switch wallpapers based on selected theme
 - **System appearance**: Toggles macOS dark/light mode
 - ** chezmoi integration**: Optional dotfile management support
@@ -29,6 +29,7 @@ A macOS theme manager CLI that synchronizes themes across multiple applications.
 - [x] Desktop Wallpaper
 - [x] pi
 - [x] Rime (Squirrel)
+- [x] Starship
 
 ## Installation
 

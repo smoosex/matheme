@@ -1,0 +1,101 @@
+"$schema" = 'https://starship.rs/config-schema.json'
+
+format = """
+[░▒▓]({{ .S1 }})\
+$os\
+[](bg:{{ .S2 }} fg:{{ .S1 }})\
+$directory\
+[](fg:{{ .S2 }} bg:{{ .S3 }})\
+$git_branch\
+$git_status\
+[](fg:{{ .S3 }} bg:{{ .S4 }})\
+$nodejs\
+$bun\
+$rust\
+$golang\
+$php\
+[](fg:{{ .S4 }} bg:{{ .S5 }})\
+$time\
+[ ](fg:{{ .S5 }})\
+\n$character"""
+
+[directory]
+style = "fg:{{ .S2FG }} bg:{{ .S2 }}"
+format = "[ $path ]($style)"
+truncation_length = 3
+truncation_symbol = "…/"
+
+[directory.substitutions]
+"Documents" = "󰈙 "
+"Downloads" = " "
+"Music" = " "
+"Pictures" = " "
+
+[git_branch]
+symbol = ""
+style = "bg:{{ .S3 }}"
+format = '[[ $symbol $branch ](fg:{{ .S3FG }} bg:{{ .S3 }})]($style)'
+
+[git_status]
+style = "bg:{{ .S3 }}"
+format = '[[($all_status$ahead_behind )](fg:{{ .S3FG }} bg:{{ .S3 }})]($style)'
+
+[nodejs]
+symbol = ""
+style = "bg:{{ .S4 }}"
+format = '[[ $symbol ($version) ](fg:{{ .S4FG }} bg:{{ .S4 }})]($style)'
+
+[bun]
+symbol = ""
+style = "bg:{{ .S4 }}"
+format = '[[ $symbol ($version) ](fg:{{ .S4FG }} bg:{{ .S4 }})]($style)'
+
+[rust]
+symbol = ""
+style = "bg:{{ .S4 }}"
+format = '[[ $symbol ($version) ](fg:{{ .S4FG }} bg:{{ .S4 }})]($style)'
+
+[golang]
+symbol = ""
+style = "bg:{{ .S4 }}"
+format = '[[ $symbol ($version) ](fg:{{ .S4FG }} bg:{{ .S4 }})]($style)'
+
+[php]
+symbol = ""
+style = "bg:{{ .S4 }}"
+format = '[[ $symbol ($version) ](fg:{{ .S4FG }} bg:{{ .S4 }})]($style)'
+
+[time]
+disabled = false
+time_format = "%R" # Hour:Minute Format
+style = "bg:{{ .S5 }}"
+format = '[[  $time ](fg:{{ .S5FG }} bg:{{ .S5 }})]($style)'
+
+[os]
+style = "bg:{{ .S1 }} fg:{{ .S1FG }}"
+format = "[ $symbol ]($style)"
+disabled = false
+
+[os.symbols]
+Windows = "󰍲"
+Ubuntu = "󰕈"
+SUSE = ""
+Raspbian = "󰐿"
+Mint = "󰣭"
+Macos = "󰀵"
+Manjaro = ""
+Linux = "󰌽"
+Gentoo = "󰣨"
+Fedora = "󰣛"
+Alpine = ""
+Amazon = ""
+Android = ""
+AOSC = ""
+Arch = "󰣇"
+Artix = "󰣇"
+EndeavourOS = ""
+CentOS = ""
+Debian = "󰣚"
+Redhat = "󱄛"
+RedHatEnterprise = "󱄛"
+Pop = ""

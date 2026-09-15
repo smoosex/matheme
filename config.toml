@@ -62,3 +62,7 @@ config_dir = "/Users/smoose/Library/Rime"
 
 [borders]
 enable = false
+
+[starship]
+enable = true
+config_path = "/Users/smoose/.config/starship/starship.toml"
