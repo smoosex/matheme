@@ -11,7 +11,7 @@ A macOS theme manager CLI that synchronizes themes across multiple applications.
 ## Features
 
 - **One-command theme switching**: Apply a consistent theme across all supported applications
-- **Multiple app support**: Neovim (NvChad), SketchyBar, Alacritty, Ghostty, Kitty, Tmux, Borders, pi, Rime (Squirrel), Starship
+- **Multiple app support**: Neovim (NvChad), SketchyBar, Alacritty, Ghostty, Kitty, Tmux, Borders, pi, Rime (Squirrel), Starship, opencode
 - **Wallpaper automation**: Automatically switch wallpapers across all Spaces and displays based on selected theme
 - **System appearance**: Toggles macOS dark/light mode
 - ** chezmoi integration**: Optional dotfile management support
@@ -30,6 +30,7 @@ A macOS theme manager CLI that synchronizes themes across multiple applications.
 - [x] pi
 - [x] Rime (Squirrel)
 - [x] Starship
+- [x] opencode
 
 ## Installation
 
@@ -96,6 +97,11 @@ enable = true
 enable = true
 control_file_path = "/Users/yourname/.pi/agent/pi-theme.json"
 
+# opencode TUI
+[opencode]
+enable = true
+theme_path = "/Users/yourname/.config/opencode/themes/matheme.json"
+
 # Rime input method (Squirrel on macOS)
 [rime]
 enable = false
@@ -145,6 +151,24 @@ When `[pi].enable` is true, `matheme` also updates `[pi].control_file_path` if t
 | `everforest_light` | `everforest-light` |
 | `tundra` | `tundra-dark` |
 | `bearded-arc` | `bearded-arc-dark` |
+
+### opencode
+
+`matheme` converts the base16 palette into a version 2 opencode theme and writes it to `[opencode].theme_path`
+(default `~/.config/opencode/themes/matheme.json`). The file name is the theme name opencode sees, so point
+`~/.config/opencode/cli.json` at it once:
+
+```json
+{
+  "theme": {
+    "name": "matheme"
+  }
+}
+```
+
+From then on every `matheme switch` rewrites `matheme.json` and opencode follows the rest of your setup. Running
+terminal clients are asked to re-read the theme files, so opencode does not need a restart. The theme uses the mode
+from the theme's `type` (`dark` or `light`); opencode falls back to that mode when the other one is requested.
 
 ### Rime (Squirrel)
 

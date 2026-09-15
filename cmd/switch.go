@@ -59,7 +59,7 @@ var switchCmd = &cobra.Command{
 
 		var wg sync.WaitGroup
 		var mu sync.Mutex
-		errs := make(chan error, 14)
+		errs := make(chan error, 16)
 
 		chezmoiFiles := make([]string, 0)
 		chezmoiFiles = append(chezmoiFiles, "add")
@@ -247,6 +247,28 @@ var switchCmd = &cobra.Command{
 				if err := apply.ApplyPiTheme(curTheme, viper.GetString("pi.control_file_path")); err != nil {
 					errs <- fmt.Errorf("failed to apply pi theme: %v", err)
 				}
+			}()
+		}
+
+		// Opencode
+		if viper.GetBool("opencode.enable") {
+			wg.Add(1)
+			go func() {
+				defer wg.Done()
+				themePath, err := apply.OpencodeThemePath(viper.GetString("opencode.theme_path"))
+				if err != nil {
+					errs <- fmt.Errorf("failed to apply opencode theme: %v", err)
+					return
+				}
+				if err := apply.ApplyOpencodeTheme(theme, themePath); err != nil {
+					errs <- fmt.Errorf("failed to apply opencode theme: %v", err)
+					return
+				}
+				if err := apply.ReloadOpencode(); err != nil {
+					errs <- fmt.Errorf("failed to reload opencode: %v", err)
+					return
+				}
+				addChezmoiFiles(themePath)
 			}()
 		}
 

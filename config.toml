@@ -52,9 +52,16 @@ current_theme_path = "/Users/smoose/.config/tmux/theme/current_theme.conf"
 [macos_system_appearance]
 enable = true
 
+# pi agent
 [pi]
 enable = true
 control_file_path = "/Users/smoose/.pi/agent/pi-theme.json"
+
+# opencode TUI, the generated theme file must be selected once in
+# ~/.config/opencode/cli.json via theme.name = "matheme"
+[opencode]
+enable = true
+theme_path = "/Users/smoose/.config/opencode/themes/matheme.json"
 
 # Rime input method (Squirrel on macOS)
 [rime]
