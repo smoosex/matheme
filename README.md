@@ -11,7 +11,7 @@ A macOS theme manager CLI that synchronizes themes across multiple applications.
 ## Features
 
 - **One-command theme switching**: Apply a consistent theme across all supported applications
-- **Multiple app support**: Neovim (NvChad), SketchyBar, Alacritty, Ghostty, Kitty, Tmux, Borders, pi, Rime (Squirrel), Starship, opencode
+- **Multiple app support**: Neovim (NvChad), SketchyBar, Alacritty, Ghostty, Kitty, Tmux, Borders, pi, Rime (Squirrel), Starship, opencode, Herdr
 - **Wallpaper automation**: Automatically switch wallpapers across all Spaces and displays based on selected theme
 - **System appearance**: Toggles macOS dark/light mode
 - ** chezmoi integration**: Optional dotfile management support
@@ -31,6 +31,7 @@ A macOS theme manager CLI that synchronizes themes across multiple applications.
 - [x] Rime (Squirrel)
 - [x] Starship
 - [x] opencode
+- [x] Herdr
 
 ## Installation
 
@@ -106,6 +107,11 @@ theme_path = "/Users/yourname/.config/opencode/themes/matheme.json"
 [rime]
 enable = false
 config_dir = "/Users/yourname/Library/Rime"
+
+# herdr terminal workspace manager
+[herdr]
+enable = true
+config_path = "/Users/yourname/.config/herdr/config.toml"
 
 [borders]
 enable = false
@@ -185,6 +191,18 @@ patch:
 ```
 
 After this, every `matheme switch` updates the look of your input method candidate window along with everything else.
+
+### Herdr
+
+Herdr has no external theme files, so when `[herdr].enable` is true `matheme` rewrites the `[theme]` section of
+`[herdr].config_path` (default `~/.config/herdr/config.toml`) and leaves every other table, such as `[keys]`,
+untouched. The generated section pins `name` to a matching `catppuccin`/`catppuccin-latte` base theme, disables
+`auto_switch` and overrides all of herdr's color tokens under `[theme.custom]` from the base16 palette. Because
+herdr only accepts per-token overrides, this is how a matheme theme is reproduced exactly.
+
+After writing the config, `matheme` runs `herdr server reload-config`, so running clients pick up the new theme
+without a restart. When no herdr server is running the reload is skipped silently; the theme is already on disk
+for the next start.
 
 If you enable Tmux support, install [`smoosex/tmux-theme`](https://github.com/smoosex/tmux-theme) first.
 `matheme` calls the plugin's `theme_menu.sh switch <theme>` script directly, and the plugin is responsible for persisting the selected theme and reloading tmux when needed.

@@ -68,6 +68,12 @@ theme_path = "/Users/smoose/.config/opencode/themes/matheme.json"
 enable = true
 config_dir = "/Users/smoose/Library/Rime"
 
+# herdr terminal workspace manager; matheme rewrites the [theme] section of
+# this file and asks a running herdr server to reload it
+[herdr]
+enable = true
+config_path = "/Users/smoose/.config/herdr/config.toml"
+
 [borders]
 enable = false
 

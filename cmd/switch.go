@@ -272,6 +272,26 @@ var switchCmd = &cobra.Command{
 			}()
 		}
 
+		// Herdr
+		if viper.GetBool("herdr.enable") {
+			wg.Add(1)
+			go func() {
+				defer wg.Done()
+				configPath, err := apply.HerdrConfigPath(viper.GetString("herdr.config_path"))
+				if err != nil {
+					errs <- fmt.Errorf("failed to apply herdr theme: %v", err)
+					return
+				}
+				if err := apply.ApplyHerdrTheme(theme, configPath); err != nil {
+					errs <- fmt.Errorf("failed to apply herdr theme: %v", err)
+					return
+				}
+				if err := apply.ReloadHerdr(); err != nil {
+					errs <- fmt.Errorf("failed to reload herdr: %v", err)
+				}
+			}()
+		}
+
 		// Rime (Squirrel)
 		if viper.GetBool("rime.enable") {
 			wg.Add(1)
