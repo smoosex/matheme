@@ -106,7 +106,7 @@ enable = false
 
 Add your theme files (TOML format) to `~/.config/matheme/themes/`:
 
-Built-in themes include `everforest`, `everforest_light`, `one_light`, `rosepine`, `gruvchad`, `tundra`, and `bearded-arc`.
+Built-in themes include `everforest`, `everforest_light`, `one_light`, `rosepine`, `tokyonight`, `gruvchad`, `tundra`, and `bearded-arc`.
 
 ```toml
 type = "dark"
@@ -139,6 +139,7 @@ When `[pi].enable` is true, `matheme` also updates `[pi].control_file_path` if t
 | `one_light` | `onedark-light` |
 | `gruvchad` | `gruvbox-dark` |
 | `rosepine` | `rosepine-dark` |
+| `tokyonight` | `tokyonight-dark` |
 | `everforest` | `everforest-dark` |
 | `everforest_light` | `everforest-light` |
 | `tundra` | `tundra-dark` |

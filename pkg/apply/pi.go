@@ -15,6 +15,7 @@ var piThemeMap = map[string]string{
 	"everforest_light": "everforest-light",
 	"tundra":           "tundra-dark",
 	"bearded-arc":      "bearded-arc-dark",
+	"tokyonight":       "tokyonight-dark",
 }
 
 type piThemeControl struct {

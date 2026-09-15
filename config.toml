@@ -18,6 +18,7 @@ everforest = "stairs.jpg"
 gruvbox = "railtrack.jpg"
 gruvchad = "railtrack.jpg"
 rosepine = "wallhaven.png"
+tokyonight = "tokyonight.jpg"
 
 [alacritty]
 enable = true
