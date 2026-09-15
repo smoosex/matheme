@@ -23,7 +23,8 @@ func ApplySystemAppearance(theme *pkg.Theme) error {
 	return nil
 }
 
-func ApplyWallpaper(wallpaperPath string) error {
+// applyWallpaperToActiveSpace only covers the space that is currently visible.
+func applyWallpaperToActiveSpaceFinder(wallpaperPath string) error {
 	script := fmt.Sprintf(`tell application "Finder" to set desktop picture to POSIX file "%s"`, wallpaperPath)
 	cmd := exec.Command("osascript", "-e", script)
 

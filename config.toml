@@ -2,7 +2,8 @@
 [chezmoi]
 enable = true
 
-# if auto is true, wallpaper will be changed automatically when switching themes
+# if auto is true, wallpaper will be changed automatically when switching themes,
+# and it applies to all Spaces and displays
 [wallpaper]
 auto = true
 
