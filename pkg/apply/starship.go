@@ -228,7 +228,7 @@ func buildStarshipColors(theme *pkg.Theme) (*starshipColors, error) {
 	}, nil
 }
 
-func ApplyStarshipTheme(theme *pkg.Theme) error {
+func ApplyStarshipTheme(theme *pkg.Theme, outDir string) error {
 	colors, err := buildStarshipColors(theme)
 	if err != nil {
 		return err
@@ -244,12 +244,11 @@ func ApplyStarshipTheme(theme *pkg.Theme) error {
 		return fmt.Errorf("failed to render starship template: %w", err)
 	}
 
-	tmpDir := "/tmp/matheme"
-	if err := os.MkdirAll(tmpDir, 0755); err != nil {
+	if err := os.MkdirAll(outDir, 0755); err != nil {
 		return fmt.Errorf("failed to create temp dir: %w", err)
 	}
 
-	filePath := filepath.Join(tmpDir, "starship_theme.toml")
+	filePath := filepath.Join(outDir, "starship_theme.toml")
 	if err := os.WriteFile(filePath, buf.Bytes(), 0644); err != nil {
 		return fmt.Errorf("failed to write starship theme file: %w", err)
 	}

@@ -245,6 +245,50 @@ matheme sw -t rosepine
 matheme sw -t everforest_light
 ```
 
+Inspect or change the configuration without touching the file by hand:
+
+```bash
+matheme config
+matheme config set chezmoi.enable=false sketchybar.enable=true
+```
+
+`config set` rewrites only the matching lines, so comments, ordering and formatting survive.
+
+### Scripting
+
+Every command takes `--json`:
+
+```bash
+matheme ls --json          # name, type, accent, base16 and which one is current
+matheme current --json     # the recorded theme
+matheme switch -t rosepine --json
+matheme switch -t rosepine --dry-run --json
+```
+
+The switch report contains one entry per target:
+
+```json
+{
+  "ok": false,
+  "theme": "rosepine",
+  "changed": true,
+  "stateWritten": true,
+  "targets": [
+    { "name": "kitty", "ok": true, "skipped": false },
+    { "name": "sketchybar", "ok": false, "skipped": false, "error": "failed to reload sketchybar: ..." }
+  ],
+  "chezmoi": { "enabled": true, "ok": true, "skipped": false, "files": 6 }
+}
+```
+
+A failing target does not abort the others. The state file describes the disk, not the report: it
+is written as soon as at least one target succeeded, even when another target or the chezmoi sync
+failed, so everything reading the state shows the theme that is actually active. A switch that is
+already recorded is a no-op — pass `--force` to retry the targets that failed.
+
+A run in which nothing could be applied — every target disabled, nothing to sync — exits non-zero
+instead of claiming the theme was applied.
+
 ## Credits
 
 - Themes from [base46](https://github.com/NvChad/base46)

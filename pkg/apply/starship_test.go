@@ -2,6 +2,7 @@ package apply
 
 import (
 	"os"
+	"path/filepath"
 	"strings"
 	"testing"
 
@@ -29,11 +30,12 @@ func TestApplyStarshipTheme(t *testing.T) {
 	if err != nil {
 		t.Fatalf("failed to parse theme: %v", err)
 	}
-	if err := ApplyStarshipTheme(theme); err != nil {
+	outDir := t.TempDir()
+	if err := ApplyStarshipTheme(theme, outDir); err != nil {
 		t.Fatalf("failed to apply starship theme: %v", err)
 	}
 
-	rendered, err := os.ReadFile("/tmp/matheme/starship_theme.toml")
+	rendered, err := os.ReadFile(filepath.Join(outDir, "starship_theme.toml"))
 	if err != nil {
 		t.Fatalf("failed to read rendered file: %v", err)
 	}

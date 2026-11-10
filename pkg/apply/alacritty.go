@@ -76,7 +76,7 @@ color = "{{ .Base16.base0F }}"
 {{ end }}
 `
 
-func ApplyAlacrittyTheme(theme *pkg.Theme) error {
+func ApplyAlacrittyTheme(theme *pkg.Theme, outDir string) error {
 	tmpl, err := template.New("alacritty").Parse(alacrittyTemplate)
 	if err != nil {
 		return fmt.Errorf("failed to parse alacritty template: %w", err)
@@ -87,12 +87,11 @@ func ApplyAlacrittyTheme(theme *pkg.Theme) error {
 		return fmt.Errorf("failed to execute alacritty template: %w", err)
 	}
 
-	tmpDir := "/tmp/matheme"
-	if err := os.MkdirAll(tmpDir, 0755); err != nil {
+	if err := os.MkdirAll(outDir, 0755); err != nil {
 		return fmt.Errorf("failed to create temp dir: %w", err)
 	}
 
-	filePath := filepath.Join(tmpDir, "alacritty_theme.toml")
+	filePath := filepath.Join(outDir, "alacritty_theme.toml")
 	if err := os.WriteFile(filePath, buf.Bytes(), 0644); err != nil {
 		return fmt.Errorf("failed to write alacritty theme file: %w", err)
 	}

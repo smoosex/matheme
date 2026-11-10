@@ -1,9 +1,7 @@
 package pkg
 
 import (
-	"fmt"
 	"os"
-	"path/filepath"
 
 	"github.com/BurntSushi/toml"
 )
@@ -15,11 +13,10 @@ type Theme struct {
 }
 
 func ParseTheme(name string) (*Theme, error) {
-	homePath, err := os.UserHomeDir()
+	themePath, err := ThemePath(name)
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "failed to get user home directory: %v\n", err)
+		return nil, err
 	}
-	themePath := filepath.Join(homePath, ".config/matheme/themes", name+".toml")
 
 	data, err := os.ReadFile(themePath)
 	if err != nil {

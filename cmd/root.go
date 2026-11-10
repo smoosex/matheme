@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"errors"
 	"fmt"
 	"os"
 	"path"
@@ -12,27 +13,42 @@ import (
 var (
 	cfgFile  string
 	curTheme string
+	jsonOut  bool
 )
 
 var rootCmd = &cobra.Command{
 	Use:   "matheme",
 	Short: "A theme manager for macOS",
-	Long: `This tool is used to switch themes om macOS:
+	Long: `Switch a base16 theme across terminals, editors, the window manager,
+the system appearance and the desktop wallpaper.
 
-Now it supports Alacritty, Neovim, Sketchybar, Tmux.`,
+Every command accepts --json so that scripts and GUIs can consume the result.`,
+	SilenceErrors: true,
+	SilenceUsage:  true,
 }
 
 func Execute() {
 	err := rootCmd.Execute()
-	if err != nil {
-		os.Exit(1)
+	if err == nil {
+		return
 	}
+
+	var exitErr *exitError
+	if errors.As(err, &exitErr) {
+		if exitErr.err != nil {
+			fmt.Fprintln(os.Stderr, exitErr.err)
+		}
+		os.Exit(exitErr.code)
+	}
+
+	fmt.Fprintln(os.Stderr, err)
+	os.Exit(1)
 }
 
 func init() {
 	cobra.OnInitialize(initConfig)
 	rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/.config/matheme/config.toml)")
-	rootCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
+	rootCmd.PersistentFlags().BoolVar(&jsonOut, "json", false, "print machine readable JSON")
 }
 
 func initConfig() {
@@ -41,16 +57,14 @@ func initConfig() {
 	} else {
 		home, err := os.UserHomeDir()
 		cobra.CheckErr(err)
-		configDir := path.Join(home, ".config", "matheme")
-		viper.AddConfigPath(configDir)
+		viper.AddConfigPath(path.Join(home, ".config", "matheme"))
 		viper.SetConfigName("config")
 		viper.SetConfigType("toml")
-		viper.SetConfigName("config")
 	}
 
 	viper.AutomaticEnv()
 
 	if err := viper.ReadInConfig(); err != nil {
-		fmt.Fprintln(os.Stderr, "Using config file failed:", viper.ConfigFileUsed())
+		fmt.Fprintf(os.Stderr, "failed to read config %s: %v\n", viper.ConfigFileUsed(), err)
 	}
 }

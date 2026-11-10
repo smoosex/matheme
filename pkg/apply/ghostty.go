@@ -14,7 +14,7 @@ var ghosttyPaletteOrder = []string{
 	"base03", "base08", "base0B", "base0A", "base0D", "base0E", "base0C", "base06",
 }
 
-func ApplyGhosttyTheme(theme *pkg.Theme) error {
+func ApplyGhosttyTheme(theme *pkg.Theme, outDir string) error {
 	var buf bytes.Buffer
 
 	for i, key := range ghosttyPaletteOrder {
@@ -30,12 +30,11 @@ func ApplyGhosttyTheme(theme *pkg.Theme) error {
 	buf.WriteString(fmt.Sprintf("selection-background = %s\n", theme.Base16["base03"]))
 	buf.WriteString(fmt.Sprintf("selection-foreground = %s\n", theme.Base16["base05"]))
 
-	tmpDir := "/tmp/matheme"
-	if err := os.MkdirAll(tmpDir, 0755); err != nil {
+	if err := os.MkdirAll(outDir, 0755); err != nil {
 		return fmt.Errorf("failed to create temp dir: %w", err)
 	}
 
-	filePath := filepath.Join(tmpDir, "ghostty_theme")
+	filePath := filepath.Join(outDir, "ghostty_theme")
 	if err := os.WriteFile(filePath, buf.Bytes(), 0644); err != nil {
 		return fmt.Errorf("failed to write ghostty theme file: %w", err)
 	}

@@ -14,7 +14,7 @@ var kittyPaletteOrder = []string{
 	"base03", "base08", "base0B", "base0A", "base0D", "base0E", "base0C", "base06",
 }
 
-func ApplyKittyTheme(theme *pkg.Theme) error {
+func ApplyKittyTheme(theme *pkg.Theme, outDir string) error {
 	var buf bytes.Buffer
 
 	for i, key := range kittyPaletteOrder {
@@ -30,12 +30,11 @@ func ApplyKittyTheme(theme *pkg.Theme) error {
 	buf.WriteString(fmt.Sprintf("selection_background %s\n", theme.Base16["base03"]))
 	buf.WriteString(fmt.Sprintf("selection_foreground %s\n", theme.Base16["base05"]))
 
-	tmpDir := "/tmp/matheme"
-	if err := os.MkdirAll(tmpDir, 0755); err != nil {
+	if err := os.MkdirAll(outDir, 0755); err != nil {
 		return fmt.Errorf("failed to create temp dir: %w", err)
 	}
 
-	filePath := filepath.Join(tmpDir, "kitty_theme")
+	filePath := filepath.Join(outDir, "kitty_theme")
 	if err := os.WriteFile(filePath, buf.Bytes(), 0644); err != nil {
 		return fmt.Errorf("failed to write kitty theme file: %w", err)
 	}
